@@ -40,39 +40,25 @@ root_cert, intermediate_cert, plain_cert = certs[0], certs[1], certs[2]
 File.open('ssl/root_ca.cert.pem', "w") do |file|
   file.write root_cert.to_pem
 end
-File.open('ssl/root_ca.cert.x509', "w") do |file|
-  file.write root_cert
-end
+
 File.open('ssl/root_ca-private.key.pem', "w") do |file|
   file.write root_cert.key_material.private_key.to_pem
 end
-File.open('ssl/root_ca-private.key.x509', "w") do |file|
-  file.write root_cert.key_material.private_key
-end
+
 File.open('ssl/root_ca-public.key.pem', "w") do |file|
   file.write root_cert.key_material.public_key.to_pem
-end
-File.open('ssl/root_ca-public.key.x509', "w") do |file|
-  file.write root_cert.key_material.public_key
 end
 
 File.open('ssl/intermediate_ca.cert.pem', "w") do |file|
   file.write intermediate_cert.to_pem
 end
-File.open('ssl/intermediate_ca.cert.x509', "w") do |file|
-  file.write intermediate_cert
-end
+
 File.open('ssl/intermediate_ca-private.key.pem', "w") do |file|
   file.write intermediate_cert.key_material.private_key.to_pem
 end
-File.open('ssl/intermediate_ca-private.key.x509', "w") do |file|
-  file.write intermediate_cert.key_material.private_key
-end
+
 File.open('ssl/intermediate_ca-public.key.pem', "w") do |file|
   file.write intermediate_cert.key_material.public_key.to_pem
-end
-File.open('ssl/intermediate_ca-public.key.x509', "w") do |file|
-  file.write intermediate_cert.key_material.public_key
 end
 
 File.open('ssl/sites/website.cert.pem', "w") do |file|
