@@ -1,6 +1,30 @@
 #!/usr/bin/env ruby
 require 'certificate_authority'
 
+module CreateCA
+  def write_main(file, cert)
+    File.open(file, 'w') do |phile|
+      phile.write cert.to_pem
+    end
+  end
+
+  def write_private(file, cert)
+    File.open(file, 'w') do |phile|
+      phile.write cert.key_material.private_key.to_pem
+    end
+  end
+
+  def write_public(file, cert)
+    File.open(file, 'w') do |phile|
+      phile.write cert.key_material.public_key.to_pem
+    end
+  end
+end
+
+# Including the CreateCA module means you can call its methods directly,
+# so CreateCA::write_public becomes simply write_public, etc.
+include CreateCA
+
 # Info for the 3 certs:
 cert_data = [
   { common_name: 'Dummy CA Root Certificate',
@@ -37,38 +61,27 @@ end
 
 root_cert, intermediate_cert, plain_cert = certs[0], certs[1], certs[2]
 
-File.open('ssl/root_ca.cert.pem', "w") do |file|
-  file.write root_cert.to_pem
-end
+cert_files = {
+  root_cert => { main:        'ssl/root_ca.cert.pem',
+                 private_key: 'ssl/root_ca-private.key.pem',
+                 public_key:  'ssl/root_ca-public.key.pem' 
+               },
 
-File.open('ssl/root_ca-private.key.pem', "w") do |file|
-  file.write root_cert.key_material.private_key.to_pem
-end
+  intermediate_cert => { main:        'ssl/intermediate_ca.cert.pem',
+                         private_key: 'ssl/intermediate_ca-private.key.pem',
+                         public_key:  'ssl/intermediate_ca-public.key.pem' 
+                       },
 
-File.open('ssl/root_ca-public.key.pem', "w") do |file|
-  file.write root_cert.key_material.public_key.to_pem
-end
+  plain_cert =>  { main:        'ssl/sites/website.cert.pem',
+                   private_key: 'ssl/sites/website-private.akey.pem',
+                   public_key:  'ssl/sites/website-public.key.pem'
+                 }
+}
 
-File.open('ssl/intermediate_ca.cert.pem', "w") do |file|
-  file.write intermediate_cert.to_pem
-end
-
-File.open('ssl/intermediate_ca-private.key.pem', "w") do |file|
-  file.write intermediate_cert.key_material.private_key.to_pem
-end
-
-File.open('ssl/intermediate_ca-public.key.pem', "w") do |file|
-  file.write intermediate_cert.key_material.public_key.to_pem
-end
-
-File.open('ssl/sites/website.cert.pem', "w") do |file|
-  file.write plain_cert.to_pem
-end
-File.open('ssl/sites/website-private.key.pem', "w") do |file|
-  file.write plain_cert.key_material.private_key.to_pem
-end
-File.open('ssl/sites/website-public.key.pem', "w") do |file|
-  file.write plain_cert.key_material.public_key.to_pem
+cert_files.each do |cert, files|
+  write_main(files[:main], cert)
+  write_private(files[:private_key], cert)
+  write_public(files[:public_key], cert)
 end
 
 File.open('ssl/ca-chain', "w") do |file|
