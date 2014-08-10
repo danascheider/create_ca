@@ -1,34 +1,41 @@
 #!/usr/bin/env ruby
 require 'certificate_authority'
 
-# Generate root_cert CA using example code at https://github.com/cchandler/certificate_authority
-root_cert = CertificateAuthority::Certificate.new
-root_cert.subject.common_name= "Dummy CA Root Certificate"
-root_cert.serial_number.number=1
-root_cert.key_material.generate_key
-root_cert.signing_entity = true
-signing_profile = {"extensions" => {"keyUsage" => {"usage" => ["critical", "keyCertSign"] }} }
-root_cert.sign!(signing_profile)
+# Info for the 3 certs:
+cert_data = [
+  { common_name: 'Dummy CA Root Certificate',
+    serial_number: 1,
+    signing_entity: true,
+    signing_profile: {'extensions' => { 'keyUsage' => {'usage' => ['critical', 'keyCertSign']}}}
+  },
+  {
+    common_name: 'Dummy Intermediate Certificate',
+    serial_number: 2,
+    signing_entity: true,
+    parent: certs[0],
+    signing_profile: {'extensions' => {'keyUsage' => {'usage' => ['critical', 'keyCertSign']}}}
+  },
+  {
+    common_name: 'http://mydomain.com',
+    serial_number: 3
+    parent: certs[1]
+  }
+]
 
-# Create an intermediate_cert CA
-intermediate_cert = CertificateAuthority::Certificate.new
-intermediate_cert.subject.common_name= "Dummy Intermediate Certificate"
-intermediate_cert.serial_number.number=2
-intermediate_cert.key_material.generate_key
-intermediate_cert.signing_entity = true
-intermediate_cert.parent = root_cert
-signing_profile = {"extensions" => {"keyUsage" => {"usage" => ["critical", "keyCertSign"] }} }
-intermediate_cert.sign!(signing_profile)
+certs = []
 
-# Create an actual web site cert
-# This will get done many times using the same intermediate certificate
-# We don't want to re-generate the root and intermediate CAs each time
-plain_cert = CertificateAuthority::Certificate.new
-plain_cert.subject.common_name= "http://mydomain.com"
-plain_cert.serial_number.number=3
-plain_cert.key_material.generate_key
-plain_cert.parent = intermediate_cert
-plain_cert.sign!
+cert_data.each do |hash|
+  cert = CertificateAuthority::Certificate.new
+  cert.subject.common_name = hash[:common_name]
+  cert.serial_number.number = hash[:serial_number]
+  cert.key_material.generate_key
+  cert.parent = hash[:parent]
+  cert.signing_entity = hash[:signing_entity]
+  cert.sign!(hash[:signing_profile])
+  certs << cert
+end
+
+root_cert, intermediate_cert, plain_cert = certs[0], certs[1], certs[2]
 
 File.open('ssl/root_ca.cert.pem', "w") do |file|
   file.write root_cert.to_pem
