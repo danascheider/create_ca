@@ -4,21 +4,21 @@ require 'require_all'
 
 module CreateCA
 
-  def write_main(file, cert)
-    File.open(file, 'w') do |phile|
-      phile.write cert.to_pem
+  def write_main(filename, cert)
+    File.open(filename, 'w') do |file|
+      file.write cert.to_pem
     end
   end
 
-  def write_private(file, cert)
-    File.open(file, 'w') do |phile|
-      phile.write cert.key_material.private_key.to_pem
+  def write_private(filename, cert)
+    File.open(filename , 'w') do |file|
+      file.write cert.key_material.private_key.to_pem
     end
   end
 
-  def write_public(file, cert)
-    File.open(file, 'w') do |phile|
-      phile.write cert.key_material.public_key.to_pem
+  def write_public(filename , cert)
+    File.open(filename , 'w') do |file|
+      file.write cert.key_material.public_key.to_pem
     end
   end
 end
