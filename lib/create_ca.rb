@@ -2,6 +2,7 @@
 require 'certificate_authority'
 
 module CreateCA
+
   def write_main(file, cert)
     File.open(file, 'w') do |phile|
       phile.write cert.to_pem
@@ -25,6 +26,8 @@ end
 # so CreateCA::write_public becomes simply write_public, etc.
 include CreateCA
 
+certs = []
+
 # Info for the 3 certs:
 cert_data = [
   { common_name: 'Dummy CA Root Certificate',
@@ -41,12 +44,10 @@ cert_data = [
   },
   {
     common_name: 'http://mydomain.com',
-    serial_number: 3
+    serial_number: 3,
     parent: certs[1]
   }
 ]
-
-certs = []
 
 cert_data.each do |hash|
   cert = CertificateAuthority::Certificate.new
