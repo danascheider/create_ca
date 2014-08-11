@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'certificate_authority'
+require 'require_all'
 
 module CreateCA
 
