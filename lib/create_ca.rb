@@ -11,13 +11,13 @@ module CreateCA
   end
 
   def write_private(filename, cert)
-    File.open(filename , 'w') do |file|
+    File.open(filename, 'w') do |file|
       file.write cert.key_material.private_key.to_pem
     end
   end
 
   def write_public(filename , cert)
-    File.open(filename , 'w') do |file|
+    File.open(filename, 'w') do |file|
       file.write cert.key_material.public_key.to_pem
     end
   end
